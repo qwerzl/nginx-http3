@@ -25,4 +25,5 @@ jobs:
           image_name: qwerzl/docker-nginx-http3
           github_token: ${{ secrets.GITHUB_TOKEN }}
           dockerfile: buster/Dockerfile
+          context: buster
           # docker_io_token: ${{ secrets.DOCKER_IO_ACCESS_TOKEN }}
