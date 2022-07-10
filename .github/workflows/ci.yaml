@@ -1,55 +1,26 @@
-name: CI
-
+name: Build and publish a Docker image to ghcr.io and Docker Hub
 on:
+
+  # publish on releases (tagged as "x.y.z" - "v" prefix is removed)
+  release:
+    types: [ published ]
+
+  # publish on pushes to the main branch (tagged as "master")
   push:
-    tags:
-      - "*"
-  workflow_dispatch:
+    branches:
+      - master
 
 jobs:
-  ci:
-    runs-on: ubuntu-latest
+  docker_publish:
+    runs-on: "ubuntu-20.04"
+
     steps:
-      - uses: actions/checkout@main
-        with:
-          fetch-depth: 2
-      - uses: docker-practice/actions-setup-docker@master
-      - uses: azure/docker-login@v1
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
-      - uses: azure/docker-login@v1
-        with:
-          login-server: ghcr.io
-          username: khs1994
-          password: ${{ secrets.GHCR_IO_TOKEN }}
-      - run: |
-          export GITHUB_TAG=$(echo $GITHUB_REF | cut -d '/' -f 3)
+      - uses: actions/checkout@v3
 
-          # DOCKER_PUSH="--load"
-          DOCKER_PUSH="--push"
-          DOCKER_LATEST_TAG="dev"
-
-          if ! [ "$GITHUB_EVENT_NAME" = 'workflow_dispatch' ];then
-            DOCKER_IMAGES="-t ${DOCKER_IMAGE}:${GITHUB_TAG}-alpine \
-                           -t ${REGISTRY_MIRROR}/${DOCKER_IMAGE}:${GITHUB_TAG}-alpine \
-                           -t ${DOCKER_IMAGE}:alpine \
-                           -t ${REGISTRY_MIRROR}/${DOCKER_IMAGE}:alpine \
-                          "
-            DOCKER_PUSH="--push"
-            DOCKER_LATEST_TAG="latest"
-          fi
-
-          docker buildx build \
-            -t ${DOCKER_IMAGE}:${DOCKER_LATEST_TAG} \
-            -t ${REGISTRY_MIRROR}/${DOCKER_IMAGE}:${DOCKER_LATEST_TAG} \
-            ${DOCKER_IMAGES} \
-            ${DOCKER_PUSH} \
-            --cache-from=ghcr.io/${DOCKER_IMAGE}:cache \
-            --cache-to=ghcr.io/${DOCKER_IMAGE}:cache \
-            alpine
-        env:
-          REGISTRY_MIRROR: ghcr.io
-          GITHUB_EVENT_NAME: ${{github.event_name}}
-          DOCKER_IMAGE: khs1994/nginx
-        name: Build docker image
+      # https://github.com/marketplace/actions/push-to-ghcr
+      - name: Build and publish a Docker image for macbre/nginx-http3
+        uses: macbre/push-to-ghcr@v8
+        with:
+          image_name: qwerzl/docker-nginx-http3
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          # docker_io_token: ${{ secrets.DOCKER_IO_ACCESS_TOKEN }}
