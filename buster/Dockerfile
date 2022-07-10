@@ -30,12 +30,12 @@ RUN set -x ; sed -i "s!deb.debian.org!${DEB_URL}!g" /etc/apt/sources.list \
            libgd-dev \
            libgeoip1 \
            libgeoip-dev \
-           libperl5.24 \
+           libperl5.28 \
            libperl-dev \
            mercurial \
            # gawk \
     && curl -fSL https://nginx.org/download/nginx-$NGINX_VERSION.tar.gz -o nginx.tar.gz \
-    && git clone -b $OPENSSL_BRANCH --depth=1 $OPENSSL_URL /srv/openssl \
+    && git clone -b --depth=1 $OPENSSL_URL /srv/openssl \
     && cd /srv/openssl \
     && curl -fsSLO https://raw.githubusercontent.com/hakasenyang/openssl-patch/master/openssl-equal-1.1.1a_ciphers.patch \
     && patch -p1 < openssl-equal-1.1.1a_ciphers.patch \
