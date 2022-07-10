@@ -32,6 +32,7 @@ RUN set -x ; sed -i "s!deb.debian.org!${DEB_URL}!g" /etc/apt/sources.list \
            libgeoip-dev \
            libperl5.24 \
            libperl-dev \
+           mercurial \
            # gawk \
     && curl -fSL https://nginx.org/download/nginx-$NGINX_VERSION.tar.gz -o nginx.tar.gz \
     && git clone -b $OPENSSL_BRANCH --depth=1 $OPENSSL_URL /srv/openssl \
@@ -87,8 +88,11 @@ RUN set -x ; sed -i "s!deb.debian.org!${DEB_URL}!g" /etc/apt/sources.list \
     --with-file-aio \
     --with-http_v2_module \
     --with-http_v2_hpack_enc \
+    --add-dynamic-module=/usr/src/njs/nginx \
   " \
   && mkdir -p /usr/src \
+  && cd /usr/src \
+  && hg clone http://hg.nginx.org/njs
   && tar -zxC /usr/src -f nginx.tar.gz \
   && cd /usr/src/nginx-$NGINX_VERSION \
   && curl -fsSLO https://raw.githubusercontent.com/hakasenyang/openssl-patch/master/nginx_hpack_push_1.15.3.patch \
@@ -115,7 +119,9 @@ RUN set -x ; sed -i "s!deb.debian.org!${DEB_URL}!g" /etc/apt/sources.list \
   && install -m755 objs/ngx_stream_geoip_module-debug.so /usr/lib/nginx/modules/ngx_stream_geoip_module-debug.so \
   && ln -s ../../usr/lib/nginx/modules /etc/nginx/modules \
   && strip /usr/sbin/nginx* \
-  && strip /usr/lib/nginx/modules/*.so
+  && strip /usr/lib/nginx/modules/*.so \
+  && hg clone http://hg.nginx.org/njs \
+  && 
 
 COPY nginx.conf /etc/nginx/nginx.conf
 COPY nginx.vh.default.conf /etc/nginx/conf.d/default.conf
