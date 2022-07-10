@@ -35,7 +35,7 @@ RUN set -x ; sed -i "s!deb.debian.org!${DEB_URL}!g" /etc/apt/sources.list \
            mercurial \
            # gawk \
     && curl -fSL https://nginx.org/download/nginx-$NGINX_VERSION.tar.gz -o nginx.tar.gz \
-    && git clone -b --depth=1 $OPENSSL_URL /srv/openssl \
+    && git clone --depth=1 $OPENSSL_URL /srv/openssl \
     && cd /srv/openssl \
     && curl -fsSLO https://raw.githubusercontent.com/hakasenyang/openssl-patch/master/openssl-equal-1.1.1a_ciphers.patch \
     && patch -p1 < openssl-equal-1.1.1a_ciphers.patch \
